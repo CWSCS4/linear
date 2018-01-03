@@ -19,6 +19,7 @@ def softmax_loss_naive(W, X, y, reg):
   - loss as single float
   - gradient with respect to weights W; an array of same shape as W
   """
+
   # Initialize the loss and gradient to zero.
   loss = 0.0
   dW = np.zeros_like(W)
@@ -29,7 +30,14 @@ def softmax_loss_naive(W, X, y, reg):
   # here, it is easy to run into numeric instability. Don't forget the        #
   # regularization!                                                           #
   #############################################################################
-  pass
+  #Get numpy array of (N, C)
+  scores = np.matmul(X, W)
+
+  #Get probabilities along the N axis
+  probs = np.exp(scores) / np.sum(np.exp(scores), axis=1).reshape([-1, 1])
+
+  #Get loss and gradient
+  
   #############################################################################
   #                          END OF YOUR CODE                                 #
   #############################################################################
@@ -59,4 +67,3 @@ def softmax_loss_vectorized(W, X, y, reg):
   #############################################################################
 
   return loss, dW
-
