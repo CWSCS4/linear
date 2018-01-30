@@ -90,8 +90,18 @@ def svm_loss_vectorized(W, X, y, reg):
   # result in loss.                                                           #
   #############################################################################
 
+  # S is scores matrix (N, C)
   S = np.dot(X, W)
-  scores = np.ones(X.shape[0], W.shape[1])
+
+  # An N-dimensional vector with the score that the correct class for each
+  # image receives
+  correct_class_scores = S[np.arange(X.shape[0]), y]
+
+  # N by C matrix
+  score_margins = np.maximum(0, S - correct_class_scores.reshape([-1,1]) + 1)
+  score_margins[np.arange(X.shape[0]),y] = 0
+  loss = np.sum(score_margins) / X.shape[0] + reg * np.sum(W*W)
+
 
   #############################################################################
   #                             END OF YOUR CODE                              #
@@ -107,7 +117,18 @@ def svm_loss_vectorized(W, X, y, reg):
   # to reuse some of the intermediate values that you used to compute the     #
   # loss.                                                                     #
   #############################################################################
-  pass
+  
+  # gradient calculations
+
+  # (C, N) array, so that when multiplied by (N, D) data, you get
+  # your gradient.
+  pixel_coeffs = (score_margins.T > 0).astype(np.float64)
+  negative_coeffs = np.sum(pixel_coeffs, axis=0)
+  pixel_coeffs[y, np.arange(X.shape[0])] -= negative_coeffs
+  dW = pixel_coeffs.dot(X).T
+  dW /= X.shape[0]
+  dW += reg * W
+
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
