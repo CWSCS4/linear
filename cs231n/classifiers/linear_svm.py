@@ -57,6 +57,7 @@ def svm_loss_naive(W, X, y, reg):
   # Add regularization to the loss.
   loss += reg * np.sum(W * W)
 
+  # add the bias to (regularize) the gradient
   dW += reg * W
 
   #############################################################################
@@ -69,7 +70,7 @@ def svm_loss_naive(W, X, y, reg):
   #############################################################################
 
   # I had to use http://cs231n.github.io/optimization-1/#gradcompute in addition to my notes to do this assignment.
-  # code is integrated into above work
+  # code is integrated above
 
   return loss, dW
 
@@ -88,7 +89,10 @@ def svm_loss_vectorized(W, X, y, reg):
   # Implement a vectorized version of the structured SVM loss, storing the    #
   # result in loss.                                                           #
   #############################################################################
-  pass
+
+  S = np.dot(X, W)
+  scores = np.ones(X.shape[0], W.shape[1])
+
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
