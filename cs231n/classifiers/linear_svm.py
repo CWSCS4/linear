@@ -31,16 +31,33 @@ def svm_loss_naive(W, X, y, reg):
     for j in range(num_classes):
       if j == y[i]:
         continue
+      # margin = S_k - S_y_i + 1 
       margin = scores[j] - correct_class_score + 1 # note delta = 1
+      # if margin > 0, then S_k < S_y_i - 1
+
+      # dL/dW = 0 if S_k < S_y_i - 1 --> by default
+
+      # S_k - S_y_i + 1 > 0 --> S_k > S_y_i - 1
       if margin > 0:
         loss += margin
+
+        # dL/dW = X[i] if S_k > S_y_i - 1
+        dW[:, j] += X[i] # need to add, so it becomes the sum
+
+        # dL/dW --> need to account for -X[i] in W[j]*X[i] - W[y[i]] * x[i] --> as dL/dW[y[i] = -x[i], as gradient is derivative w.r.t all weights.
+        dW[:, y[i]] -= X[i]
 
   # Right now the loss is a sum over all training examples, but we want it
   # to be an average instead so we divide by num_train.
   loss /= num_train
 
+  # Average the gradients, just like the loss
+  dW /= num_train
+
   # Add regularization to the loss.
   loss += reg * np.sum(W * W)
+
+  dW += reg * W
 
   #############################################################################
   # TODO:                                                                     #
@@ -51,6 +68,8 @@ def svm_loss_naive(W, X, y, reg):
   # code above to compute the gradient.                                       #
   #############################################################################
 
+  # I had to use http://cs231n.github.io/optimization-1/#gradcompute in addition to my notes to do this assignment.
+  # code is integrated into above work
 
   return loss, dW
 
