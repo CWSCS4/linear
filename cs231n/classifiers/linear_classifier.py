@@ -1,8 +1,10 @@
 from __future__ import print_function
 
 import numpy as np
+
 from cs231n.classifiers.linear_svm import *
 from cs231n.classifiers.softmax import *
+
 
 class LinearClassifier(object):
 
@@ -51,7 +53,9 @@ class LinearClassifier(object):
       # Hint: Use np.random.choice to generate indices. Sampling with         #
       # replacement is faster than sampling without replacement.              #
       #########################################################################
-      pass
+      rand_img = np.random.choice(num_train, batch_size)
+      X_batch = X[rand_img, :]
+      y_batch = y[rand_img]
       #########################################################################
       #                       END OF YOUR CODE                                #
       #########################################################################
@@ -65,7 +69,7 @@ class LinearClassifier(object):
       # TODO:                                                                 #
       # Update the weights using the gradient and the learning rate.          #
       #########################################################################
-      pass
+      self.W += -1 * learning_rate * grad
       #########################################################################
       #                       END OF YOUR CODE                                #
       #########################################################################
@@ -94,7 +98,8 @@ class LinearClassifier(object):
     # TODO:                                                                   #
     # Implement this method. Store the predicted labels in y_pred.            #
     ###########################################################################
-    pass
+    scores = np.dot(X, self.W)
+    y_pred = scores.argmax(axis=0)
     ###########################################################################
     #                           END OF YOUR CODE                              #
     ###########################################################################
@@ -130,4 +135,3 @@ class Softmax(LinearClassifier):
 
   def loss(self, X_batch, y_batch, reg):
     return softmax_loss_vectorized(self.W, X_batch, y_batch, reg)
-

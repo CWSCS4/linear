@@ -45,8 +45,7 @@ def svm_loss_naive(W, X, y, reg):
   # Add regularization to the loss.
   loss += reg * np.sum(W * W)
 
-  dW += 2*W*reg
-
+  dW += 2 * W * reg
   #############################################################################
   # TODO:                                                                     #
   # Compute the gradient of the loss function and store it dW.                #
@@ -73,28 +72,24 @@ def svm_loss_vectorized(W, X, y, reg):
   # Implement a vectorized version of the structured SVM loss, storing the    #
   # result in loss.                                                           #
   #############################################################################
+  # Calculate scores
+  scores = np.dot(X, W)
 
-  num_classes = W.shape[1]
-  num_train = X.shape[0]
+  # Calculate loss
+  correct_scores = np.ones(scores.shape) * scores[y] # Correct scores
+  theOne = np.ones(scores.shape)
+  L = scores - correct_scores + theOne
 
-  for i in range(num_train) -> X[num_train]
-  for i in range(num_classes) -> W[:, num_classes]
+  L[L < 0] = 0
+  L[y] = 0 # Don't count y_i
+  loss = np.sum(L)
 
-  scores = dot(X, W)
+  # Average over number of training examples
+  num_train = X.shape[1]
+  loss /= num_train
 
-  
-  for i in range(num_train):
-    scores = X[i].dot(W)
-    correct_class_score = scores[y[i]]
-    for j in range(num_classes):
-      if j == y[i]:
-        continue
-      margin = scores[j] - correct_class_score + 1 # note delta = 1
-      if margin > 0:
-        loss += margin
-        dW[:, j] += X[i, :]
-        dW[:, y[i]] -= X[i, :]
-
+  # Add regularization
+  loss += 0.5 * reg * np.sum(W * W)
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
@@ -109,7 +104,19 @@ def svm_loss_vectorized(W, X, y, reg):
   # to reuse some of the intermediate values that you used to compute the     #
   # loss.                                                                     #
   #############################################################################
-  pass
+  grad = np.zeros(scores.shape)
+
+  L = scores - correct_scores + theOne
+
+  L[L < 0] = 0
+  L[L > 0] = 1
+  L[y] = 0 # Don't count y_i
+  L[y] = -1 * np.sum(L, axis=0)
+  dW = np.dot(X.T, L)
+
+  # Average over number of training examples
+  num_train = X.shape[1]
+  dW /= num_train
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
