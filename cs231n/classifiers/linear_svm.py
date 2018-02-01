@@ -75,22 +75,16 @@ def svm_loss_vectorized(W, X, y, reg):
   # Calculate scores
   scores = np.dot(X, W)
 
-  print(scores.shape)
-
-  # Calculate loss
-  correct_scores = np.ones(scores.shape) * scores[y, np.arange(scores.shape[1])] # Correct scores
-  theOne = np.ones(scores.shape)
-  L = scores - correct_scores + theOne
-
-  L[L < 0] = 0
-  L[y, np.arange(scores.shape[1])] = 0 # Don't count y_i
-  loss = np.sum(L)
-
+  #Calculate loss
+  correct_scores = scores[range(X.shape[0]), list(y)].reshape(-1,1)
+  margins = np.maximum(0, scores - np.tile(correct_scores, (1, W.shape[1])) + 1)
+  margins[range(X.shape[0]), list(y)] = 0
+  
   # Average over number of training examples
-  num_train = X.shape[1]
-  loss /= num_train
+  loss = np.sum(margins)
+  loss /= X.shape[0]
 
-  # Add regularization
+  # Add regularization  
   loss += 0.5 * reg * np.sum(W * W)
   #############################################################################
   #                             END OF YOUR CODE                              #
@@ -106,19 +100,13 @@ def svm_loss_vectorized(W, X, y, reg):
   # to reuse some of the intermediate values that you used to compute the     #
   # loss.                                                                     #
   #############################################################################
-  grad = np.zeros(scores.shape)
+  coeff_matrix = np.zeros((X.shape[0], W.shape[1]))
+  coeff_matrix[margins > 0] = 1
+  coeff_matrix[range(X.shape[0]), list(y)] = 0
+  coeff_matrix[range(X.shape[0]), list(y)] = -np.sum(coeff_matrix, axis=1)
 
-  L = scores - correct_scores + theOne
-
-  L[L < 0] = 0
-  L[L > 0] = 1
-  L[y, np.arange(scores.shape[1])] = 0 # Don't count y_i
-  L[y, np.arange(scores.shape[1])] = -1 * np.sum(L, axis=0)
-  dW = np.dot(X.T, L)
-
-  # Average over number of training examples
-  num_train = X.shape[1]
-  dW /= num_train
+  dW = (X.T).dot(coeff_matrix)
+  dW = dW / X.shape[0] + reg*W
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
