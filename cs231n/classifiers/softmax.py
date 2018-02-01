@@ -80,22 +80,18 @@ def softmax_loss_vectorized(W, X, y, reg):
   num_classes = W.shape[1]
 
   #Score computations
-  scores = X.dot(W)
-  shift_scores = scores - np.max(scores, axis=1).reshape(-1,1)
-  softmax_output = np.exp(shift_scores)/np.sum(np.exp(shift_scores),axis=1).reshape(-1,1)
+  scores = np.dot(X, W)
+  scores -= np.max(scores, axis=1, keepdims=True)
+  probabilities = np.exp(scores) / np.sum(np.exp(scores), axis=1, keepdims=True)
+  correct_probabilities = probabilities[range(num_train),y]
 
-  print(softmax_output.shape)
-
-  # Loss computations
-  loss = 0 - np.sum(math.log(softmax_output[range(num_train), list(y)]))
-  loss /= num_train
+  # Loss computations  
+  loss = np.sum(-np.log(correct_probabilities)) / num_train
   loss += 0.5 * reg * np.sum(W * W)
 
   #Gradient computations
-  dS = softmax_output.copy()
-  dS[range(num_train), list(y)] += -1
-  dW = (X.T).dot(dS)
-  dW = dW/num_train + reg * W
+  probabilities[range(num_train), y] -= 1
+  dW = X.T.dot(probabilities) / num_train
   #############################################################################
   #                          END OF YOUR CODE                                 #
   #############################################################################
