@@ -75,13 +75,15 @@ def svm_loss_vectorized(W, X, y, reg):
   # Calculate scores
   scores = np.dot(X, W)
 
+  print(scores.shape)
+
   # Calculate loss
-  correct_scores = np.ones(scores.shape) * scores[y] # Correct scores
+  correct_scores = np.ones(scores.shape) * scores[y, np.arange(scores.shape[1])] # Correct scores
   theOne = np.ones(scores.shape)
   L = scores - correct_scores + theOne
 
   L[L < 0] = 0
-  L[y] = 0 # Don't count y_i
+  L[y, np.arange(scores.shape[1])] = 0 # Don't count y_i
   loss = np.sum(L)
 
   # Average over number of training examples
@@ -110,8 +112,8 @@ def svm_loss_vectorized(W, X, y, reg):
 
   L[L < 0] = 0
   L[L > 0] = 1
-  L[y] = 0 # Don't count y_i
-  L[y] = -1 * np.sum(L, axis=0)
+  L[y, np.arange(scores.shape[1])] = 0 # Don't count y_i
+  L[y, np.arange(scores.shape[1])] = -1 * np.sum(L, axis=0)
   dW = np.dot(X.T, L)
 
   # Average over number of training examples
