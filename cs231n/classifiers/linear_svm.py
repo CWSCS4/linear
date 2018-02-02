@@ -123,7 +123,7 @@ def svm_loss_vectorized(W, X, y, reg):
   # (C, N) array, so that when multiplied by (N, D) data, you get
   # your gradient.
   pixel_coeffs = (score_margins.T > 0).astype(np.float64)
-  negative_coeffs = np.sum(pixel_coeffs, axis=0)
+  negative_coeffs = np.sum(pixel_coeffs, axis = 0)
   pixel_coeffs[y, np.arange(X.shape[0])] -= negative_coeffs
   dW = pixel_coeffs.dot(X).T
   dW /= X.shape[0]
