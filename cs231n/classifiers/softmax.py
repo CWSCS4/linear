@@ -1,5 +1,6 @@
 import numpy as np
 from random import shuffle
+import math
 
 def softmax_loss_naive(W, X, y, reg):
   """
@@ -19,6 +20,7 @@ def softmax_loss_naive(W, X, y, reg):
   - loss as single float
   - gradient with respect to weights W; an array of same shape as W
   """
+
   # Initialize the loss and gradient to zero.
   loss = 0.0
   dW = np.zeros_like(W)
@@ -29,7 +31,28 @@ def softmax_loss_naive(W, X, y, reg):
   # here, it is easy to run into numeric instability. Don't forget the        #
   # regularization!                                                           #
   #############################################################################
-  pass
+  num_train = X.shape[0]
+  num_classes = W.shape[1]
+
+  for i in range(num_train):
+    scores = X[i].dot(W)
+    shift_scores = scores - max(scores)
+
+    # Compute loss (and add to it, divided later)
+    loss_i = -shift_scores[y[i]] + math.log(np.sum(np.exp(shift_scores)))
+    loss += loss_i
+
+    # Compute gradient
+    for j in range(num_classes):
+      softmax_output = np.exp(shift_scores[j]) / sum(np.exp(shift_scores))
+      if j == y[i]:
+        dW[:, j] += (-1 + softmax_output) * X[i]
+      else:
+        dW[:, j] += softmax_output * X[i]
+
+  loss /= num_train
+  loss += 0.5 * reg * np.sum(W * W)
+  dW = dW / num_train + reg * W
   #############################################################################
   #                          END OF YOUR CODE                                 #
   #############################################################################
@@ -53,10 +76,24 @@ def softmax_loss_vectorized(W, X, y, reg):
   # here, it is easy to run into numeric instability. Don't forget the        #
   # regularization!                                                           #
   #############################################################################
-  pass
+  num_train = X.shape[0]
+  num_classes = W.shape[1]
+
+  #Score computations
+  scores = np.dot(X, W)
+  scores -= np.max(scores, axis=1, keepdims=True)
+  probabilities = np.exp(scores) / np.sum(np.exp(scores), axis=1, keepdims=True)
+  correct_probabilities = probabilities[range(num_train),y]
+
+  # Loss computations  
+  loss = np.sum(-np.log(correct_probabilities)) / num_train
+  loss += 0.5 * reg * np.sum(W * W)
+
+  #Gradient computations
+  probabilities[range(num_train), y] -= 1
+  dW = X.T.dot(probabilities) / num_train
   #############################################################################
   #                          END OF YOUR CODE                                 #
   #############################################################################
 
   return loss, dW
-
