@@ -55,7 +55,7 @@ def svm_loss_naive(W, X, y, reg):
   dW /= num_train
 
   # Add regularization to the loss.
-  loss += reg * np.sum(W * W)
+  loss += 1/2 * reg * np.sum(W * W)
 
   # add the bias to (regularize) the gradient
   dW += reg * W
@@ -100,7 +100,7 @@ def svm_loss_vectorized(W, X, y, reg):
   # N by C matrix
   score_margins = np.maximum(0, S - correct_class_scores.reshape([-1,1]) + 1)
   score_margins[np.arange(X.shape[0]),y] = 0
-  loss = np.sum(score_margins) / X.shape[0] + reg * np.sum(W*W)
+  loss = np.sum(score_margins) / X.shape[0] + 1/2 * reg * np.sum(W*W)
 
 
   #############################################################################
